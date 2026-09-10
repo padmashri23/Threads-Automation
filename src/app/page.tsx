@@ -1,69 +1,90 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getActiveRun } from "@/lib/pipeline/run";
+import { getLatestRun, getStories } from "@/lib/store";
+import { hasApiKey, providerLabel } from "@/lib/ai/client";
+import { ResearchPanel } from "@/components/ResearchPanel";
+import { TopStoryCard } from "@/components/TopStoryCard";
+import { StoryRow } from "@/components/StoryRow";
+import { Sparkles } from "lucide-react";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default function TodayPage() {
+  const run = getActiveRun() ?? getLatestRun();
+  const stories = run ? getStories(run.id) : [];
+  const picks = run ? run.topPicks.map((id) => stories.find((s) => s.id === id)).filter(Boolean) : [];
+  const runnerUps = run ? run.runnerUps.map((id) => stories.find((s) => s.id === id)).filter(Boolean) : [];
+  const today = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm text-muted">{today}</p>
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">Today&apos;s Top AI &amp; Technology Trends</h1>
+        <p className="mt-2 max-w-2xl text-muted">
+          The two stories worth talking about right now, researched across the AI ecosystem, verified against original sources, and written for Threads.
+        </p>
+      </div>
+
+      <ResearchPanel initialRun={run} hasApiKey={hasApiKey()} provider={providerLabel()} />
+
+      {run?.status === "done" && (
+        <p className="flex items-start gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm">
+          <Sparkles size={16} className="mt-0.5 shrink-0 text-accent" />
+          <span>
+            <span className="font-medium">Editor&apos;s note: </span>
+            {run.editorNote}
+          </span>
+        </p>
+      )}
+
+      {picks.length > 0 && (
+        <div className="space-y-6">
+          {picks.map((s) => (
+            <TopStoryCard key={s!.id} story={s!} />
+          ))}
+        </div>
+      )}
+
+      {run?.status === "done" && picks.length === 0 && (
+        <div className="card p-8 text-center">
+          <h2 className="text-lg font-semibold">Nothing worth posting today</h2>
+          <p className="mt-1 text-sm text-muted">
+            The research ran, but no story cleared the quality, momentum and verification bar. That is a real answer, not a failure.{" "}
+            <Link href="/discover" className="underline">
+              See everything that was considered
+            </Link>
+            .
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      )}
+
+      {!run && (
+        <div className="card p-8 text-center">
+          <h2 className="text-lg font-semibold">Ask your editor</h2>
+          <p className="mx-auto mt-1 max-w-lg text-sm text-muted">
+            Click <span className="font-medium text-fg">Find today&apos;s stories</span>. The app scans Hacker News, Reddit, GitHub, Hugging Face, arXiv, YouTube, the major tech
+            publications, the AI labs&apos; own announcements and a wide news net, merges duplicate coverage, scores trend momentum and editorial
+            quality, verifies the top candidates, and writes two Threads posts.
+          </p>
         </div>
-      </main>
+      )}
+
+      {runnerUps.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="text-lg font-semibold">Also considered</h2>
+            <Link href="/discover" className="text-sm text-muted hover:text-fg hover:underline">
+              All {stories.length} stories →
+            </Link>
+          </div>
+          <div className="grid gap-3">
+            {runnerUps.map((s) => (
+              <StoryRow key={s!.id} story={s!} showNote />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
