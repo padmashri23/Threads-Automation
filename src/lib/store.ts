@@ -10,14 +10,17 @@ const CACHE_DIR = path.join(DATA_DIR, "cache");
 
 function ensureDirs() {
   for (const d of [DATA_DIR, RUNS_DIR, STORIES_DIR, CACHE_DIR]) {
-    if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+    // These folders contain runtime-generated user data and must not be bundled.
+    if (!fs.existsSync(/* turbopackIgnore: true */ d)) {
+      fs.mkdirSync(/* turbopackIgnore: true */ d, { recursive: true });
+    }
   }
 }
 
 function readJson<T>(file: string, fallback: T): T {
   try {
-    if (!fs.existsSync(file)) return fallback;
-    return JSON.parse(fs.readFileSync(file, "utf8")) as T;
+    if (!fs.existsSync(/* turbopackIgnore: true */ file)) return fallback;
+    return JSON.parse(fs.readFileSync(/* turbopackIgnore: true */ file, "utf8")) as T;
   } catch {
     return fallback;
   }
@@ -26,8 +29,8 @@ function readJson<T>(file: string, fallback: T): T {
 function writeJson(file: string, value: unknown) {
   ensureDirs();
   const tmp = `${file}.${process.pid}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(value, null, 2), "utf8");
-  fs.renameSync(tmp, file);
+  fs.writeFileSync(/* turbopackIgnore: true */ tmp, JSON.stringify(value, null, 2), "utf8");
+  fs.renameSync(/* turbopackIgnore: true */ tmp, /* turbopackIgnore: true */ file);
 }
 
 // ---------- Settings ----------
@@ -59,9 +62,9 @@ export function getLatestRun(): Run | null {
 export function listRuns(limit = 20): Run[] {
   ensureDirs();
   const files = fs
-    .readdirSync(RUNS_DIR)
+    .readdirSync(/* turbopackIgnore: true */ RUNS_DIR)
     .filter((f) => f.endsWith(".json"))
-    .map((f) => ({ f, t: fs.statSync(path.join(RUNS_DIR, f)).mtimeMs }))
+    .map((f) => ({ f, t: fs.statSync(/* turbopackIgnore: true */ path.join(RUNS_DIR, f)).mtimeMs }))
     .sort((a, b) => b.t - a.t)
     .slice(0, limit);
   return files.map((x) => readJson<Run | null>(path.join(RUNS_DIR, x.f), null)).filter(Boolean) as Run[];

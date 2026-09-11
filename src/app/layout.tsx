@@ -13,13 +13,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full">
         <Nav />
-        <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 pb-20 pt-6 flex-1">{children}</main>
-        <footer className="border-t border-border py-6 text-center text-xs text-muted">
-          Threads AI Editor · research → verify → write. Nothing is invented: every post is grounded in the sources shown.
-        </footer>
+        <main className="app-main"><div className="page-shell">{children}</div></main>
       </body>
     </html>
   );
