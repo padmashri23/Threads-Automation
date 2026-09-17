@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import type { Category, Story } from "@/lib/types";
 import { StoryRow } from "./StoryRow";
 type Sort = "trending" | "latest" | "quality";
-
 const FILTERS: Array<{ key: string; label: string; match: (s: Story) => boolean }> = [
   { key: "all", label: "All", match: () => true },
   { key: "ai", label: "AI", match: (s) => ["AI Models", "AI Agents", "AI Coding", "Research", "Regulation & Safety"].includes(s.category) || s.tags.some((t) => /\bai\b|llm|model/i.test(t)) },
