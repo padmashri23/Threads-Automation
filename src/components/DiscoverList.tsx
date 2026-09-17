@@ -1,5 +1,4 @@
 "use client";
-
 import { useMemo, useState } from "react";
 import type { Category, Story } from "@/lib/types";
 import { StoryRow } from "./StoryRow";
