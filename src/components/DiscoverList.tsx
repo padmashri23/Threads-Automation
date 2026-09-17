@@ -2,7 +2,6 @@
 import { useMemo, useState } from "react";
 import type { Category, Story } from "@/lib/types";
 import { StoryRow } from "./StoryRow";
-
 type Sort = "trending" | "latest" | "quality";
 
 const FILTERS: Array<{ key: string; label: string; match: (s: Story) => boolean }> = [
