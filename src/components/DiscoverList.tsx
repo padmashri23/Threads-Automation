@@ -18,7 +18,6 @@ const FILTERS: Array<{ key: string; label: string; match: (s: Story) => boolean 
   { key: "hardware", label: "Hardware", match: (s) => s.category === "Hardware" },
   { key: "bigtech", label: "Big Tech", match: (s) => s.category === "Big Tech" },
 ];
-
 export function DiscoverList({ stories }: { stories: Story[] }) {
   const [sort, setSort] = useState<Sort>("trending");
   const [filter, setFilter] = useState("all");
